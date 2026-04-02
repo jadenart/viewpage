@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IG Grid Preview · Notion</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400;500&display=swap');
+
+  :root {
+    --bg: #f5f0eb;
+    --surface: #ffffff;
+    --surface2: #faf7f4;
+    --border: #e8e0d8;
+    --accent: #b87c4c;
+    --accent-soft: #e8d5c0;
+    --text: #2a2218;
+    --text-muted: #8a7a6a;
+    --approved: #5a8a5a;
+    --approved-bg: #eef5ee;
+    --draft: #b87c4c;
+    --draft-bg: #f7ede0;
+    --scheduled: #4a6fa5;
+    --scheduled-bg: #e8eef7;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(42,34,24,0.08);
+    --shadow-drag: 0 12px 40px rgba(42,34,24,0.22);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── Setup Screen ───────────────────────────────── */
+  #setup-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 24px;
+    background: var(--bg);
+  }
+
+  .setup-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 40px;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: var(--shadow);
+  }
+
+  .setup-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--text);
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+
+  .setup-logo span { color: var(--accent); font-style: italic; }
+
+  .setup-sub {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 36px;
+  }
+
+  .setup-label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .setup-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    background: var(--surface2);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 20px;
+  }
+
+  .setup-input:focus { border-color: var(--accent); }
+
+  .setup-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .setup-btn:hover { background: var(--accent); }
+  .setup-btn:active { transform: scale(0.99); }
+
+  .setup-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 20px;
+    line-height: 1.7;
+  }
+
+  .setup-hint a { color: var(--accent); text-decoration: none; }
+
+  .setup-error {
+    font-size: 12px;
+    color: #c0392b;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ── Main Widget ───────────────────────────────── */
+  #widget {
+    display: none;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .header-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 300;
+    letter-spacing: -0.3px;
+  }
+
+  .header-logo span { color: var(--accent); font-style: italic; }
+
+  .db-name {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    border-left: 1px solid var(--border);
+    padding-left: 12px;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s;
+    color: var(--text-muted);
+  }
+
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  .btn-refresh {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-refresh.spinning .icon-refresh { animation: spin 0.6s linear; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Filter bar */
+  .filter-bar {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
+
+  .filter-chip {
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-chip.active { background: var(--text); color: #fff; border-color: var(--text); }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+  }
+
+  /* Grid container */
+  .grid-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  /* Columns selector */
+  .grid-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .grid-info {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .col-selector {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .col-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    color: var(--text-muted);
+    font-family: 'Jost', sans-serif;
+  }
+
+  .col-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
+  .col-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+  /* The grid */
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    transition: grid-template-columns 0.25s ease;
+  }
+
+  #grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  #grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  #grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+
+  /* Grid cells */
+  .grid-cell {
+    aspect-ratio: 4/5;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: grab;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    background: var(--border);
+    user-select: none;
+  }
+
+  .grid-cell:active { cursor: grabbing; }
+
+  .grid-cell.dragging {
+    opacity: 0.4;
+    transform: scale(0.96);
+  }
+
+  .grid-cell.drag-over {
+    box-shadow: inset 0 0 0 2.5px var(--accent);
+    transform: scale(1.02);
+  }
+
+  .grid-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+
+  .grid-cell .no-img {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface2);
+    gap: 6px;
+  }
+
+  .grid-cell .no-img-icon { font-size: 22px; opacity: 0.4; }
+  .grid-cell .no-img-text { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); text-align: center; padding: 0 8px; }
+
+  /* Hover overlay */
+  .grid-cell .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(30,20,10,0.85) 0%, transparent 55%);
+    opacity: 0;
+    transition: opacity 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 10px;
+  }
+
+  .grid-cell:hover .overlay { opacity: 1; }
+
+  .overlay-title {
+    font-size: 10px;
+    font-weight: 400;
+    color: #fff;
+    line-height: 1.4;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .overlay-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .overlay-date {
+    font-size: 9px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.5px;
+  }
+
+  .overlay-status {
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .status-approved { background: var(--approved-bg); color: var(--approved); }
+  .status-draft { background: var(--draft-bg); color: var(--draft); }
+  .status-scheduled { background: var(--scheduled-bg); color: var(--scheduled); }
+  .status-idea { background: #f0eaf7; color: #7a4fa5; }
+
+  /* Position badge */
+  .pos-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 20px;
+    height: 20px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    font-size: 9px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .grid-cell:hover .pos-badge { opacity: 1; }
+
+  /* Loading / empty */
+  .grid-loading {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    gap: 16px;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .loading-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 20px;
+  }
+
+  .empty-icon { font-size: 40px; margin-bottom: 16px; }
+
+  .empty-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    margin-bottom: 8px;
+  }
+
+  .empty-sub { font-size: 13px; color: var(--text-muted); }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--text);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 9999;
+    white-space: nowrap;
+  }
+
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Disconnect btn */
+  .btn-disconnect {
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-disconnect:hover { border-color: #c0392b; color: #c0392b; }
+
+  /* Scrollbar */
+  .grid-wrapper::-webkit-scrollbar { width: 5px; }
+  .grid-wrapper::-webkit-scrollbar-track { background: transparent; }
+  .grid-wrapper::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  /* Save indicator */
+  .save-indicator {
+    font-size: 10px;
+    color: var(--approved);
+    letter-spacing: 0.5px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .save-indicator.show { opacity: 1; }
+
+  /* Notion integration token note */
+  .notion-note {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ SETUP SCREEN ═══════════════════ -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <div class="setup-logo">IG Grid <span>Preview</span></div>
+    <div class="setup-sub">for Notion · by Jadenart</div>
+
+    <div class="notion-note">
+      💡 Você precisará de um <strong>Notion Integration Token</strong> e do <strong>Database ID</strong> do seu banco de dados de conteúdo. Veja as instruções abaixo.
+    </div>
+
+    <label class="setup-label" for="token-input">Notion Integration Token</label>
+    <input class="setup-input" id="token-input" type="password" placeholder="secret_xxxxxxxxxxxx" autocomplete="off">
+
+    <label class="setup-label" for="db-input">Database ID</label>
+    <input class="setup-input" id="db-input" type="text" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+
+    <label class="setup-label" for="img-prop-input">Nome da propriedade de imagem</label>
+    <input class="setup-input" id="img-prop-input" type="text" placeholder="Image URL (nome da coluna no Notion)" value="Image URL">
+
+    <label class="setup-label" for="title-prop-input">Nome da propriedade de título</label>
+    <input class="setup-input" id="title-prop-input" type="text" placeholder="Name" value="Name">
+
+    <label class="setup-label" for="status-prop-input">Nome da propriedade de status</label>
+    <input class="setup-input" id="status-prop-input" type="text" placeholder="Status" value="Status">
+
+    <label class="setup-label" for="date-prop-input">Nome da propriedade de data</label>
+    <input class="setup-input" id="date-prop-input" type="text" placeholder="Schedule Date" value="Schedule Date">
+
+    <label class="setup-label" for="order-prop-input">Nome da propriedade de ordem (Number)</label>
+    <input class="setup-input" id="order-prop-input" type="text" placeholder="Grid Order" value="Grid Order">
+
+    <button class="setup-btn" onclick="connect()">Conectar ao Notion →</button>
+    <div class="setup-error" id="setup-error"></div>
+
+    <div class="setup-hint">
+      <strong>Como criar o token:</strong><br>
+      1. Acesse <a href="https://www.notion.so/my-integrations" target="_blank">notion.so/my-integrations</a><br>
+      2. Clique em "New integration" → dê um nome → salve<br>
+      3. Copie o <strong>Internal Integration Token</strong><br>
+      4. No seu database, clique em ••• → "Add connections" → selecione sua integration<br><br>
+      <strong>Como pegar o Database ID:</strong><br>
+      Na URL do seu database: notion.so/<strong>[workspace]</strong>/<strong style="color:var(--accent)">[DATABASE-ID]</strong>?v=...
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MAIN WIDGET ═══════════════════ -->
+<div id="widget">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo">IG Grid <span>Preview</span></div>
+      <div class="db-name" id="db-display">—</div>
+    </div>
+    <div class="header-actions">
+      <span class="save-indicator" id="save-indicator">✓ Salvo no Notion</span>
+      <button class="btn-refresh" id="refresh-btn" onclick="loadPosts()">
+        <span class="icon-refresh">↻</span> Atualizar
+      </button>
+      <button class="btn-disconnect" onclick="disconnect()">Desconectar</button>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <span class="filter-label">Filtrar:</span>
+    <button class="filter-chip active" data-filter="all" onclick="setFilter('all', this)">Todos</button>
+    <button class="filter-chip" data-filter="Aprovados" onclick="setFilter('Aprovados', this)">
+      <span class="status-dot" style="background:var(--approved)"></span>Aprovados
+    </button>
+    <button class="filter-chip" data-filter="Aguardando aprovação" onclick="setFilter('Aguardando aprovação', this)">
+      <span class="status-dot" style="background:var(--draft)"></span>Aguardando
+    </button>
+    <button class="filter-chip" data-filter="Alteração solicitada" onclick="setFilter('Alteração solicitada', this)">
+      <span class="status-dot" style="background:#c0392b"></span>Alteração
+    </button>
+    <button class="filter-chip" data-filter="Postado" onclick="setFilter('Postado', this)">
+      <span class="status-dot" style="background:var(--scheduled)"></span>Postado
+    </button>
+  </div>
+
+  <div class="grid-wrapper">
+    <div class="grid-controls">
+      <div class="grid-info" id="grid-info">— posts</div>
+      <div class="col-selector">
+        <span style="font-size:10px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-right:6px;">Colunas</span>
+        <button class="col-btn active" onclick="setCols(3, this)">3</button>
+        <button class="col-btn" onclick="setCols(4, this)">4</button>
+        <button class="col-btn" onclick="setCols(5, this)">5</button>
+      </div>
+    </div>
+    <div id="grid" class="cols-3"></div>
+  </div>
+</div>
+
+<div id="toast">✓ Ordem atualizada no Notion</div>
+
+<script>
+// ── State ─────────────────────────────────────────
+let cfg = {
+  token: '', dbId: '',
+  imgProp: 'Image URL', titleProp: 'Nome',
+  statusProp: 'Status', dateProp: 'Data',
+  orderProp: 'Grid Order'
+};
+
+let allPosts = [];
+let filteredPosts = [];
+let currentFilter = 'all';
+let dragSrcIndex = null;
+
+const WORKER = 'https://gentle-meadow-29de.jade-batista.workers.dev/';
+
+async function fetchWithProxy(notionUrl, opts) {
+  // Handle CORS preflight
+  const proxyUrl = WORKER + '?url=' + encodeURIComponent(notionUrl);
+  
+  const fetchOpts = {
+    method: opts.method || 'GET',
+    headers: {
+      'Authorization': opts.headers['Authorization'],
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json',
+    },
+    mode: 'cors',
+  };
+  
+  if (opts.body) fetchOpts.body = opts.body;
+  
+  const res = await fetch(proxyUrl, fetchOpts);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error('Erro ' + res.status + ': ' + text);
+  }
+  return res;
+}
+
+// ── Google Drive URL converter ───────────────────────
+function convertDriveUrl(url) {
+  if (!url) return url;
+  // Already converted
+  if (url.includes('uc?export=view')) return url;
+  // Standard share link: /file/d/ID/view
+  const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return 'https://drive.google.com/uc?export=view&id=' + match[1];
+  // drive.google.com/open?id=ID
+  const match2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (match2) return 'https://drive.google.com/uc?export=view&id=' + match2[1];
+  return url;
+}
+
+// ── Persistence ───────────────────────────────────
+function saveConfig() {
+  try { localStorage.setItem('igw_cfg', JSON.stringify(cfg)); } catch(e){}
+}
+
+function loadConfig() {
+  try {
+    const s = localStorage.getItem('igw_cfg');
+    if (s) { cfg = {...cfg, ...JSON.parse(s)}; return true; }
+  } catch(e){}
+  return false;
+}
+
+// ── Init ──────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  if (loadConfig() && cfg.token && cfg.dbId) {
+    showWidget();
+    loadPosts();
+  }
+});
+// ── Connect ───────────────────────────────────────
+async function connect() {
+  const token = document.getElementById('token-input').value.trim();
+  const dbId  = document.getElementById('db-input').value.trim().replace(/-/g,'');
+  const err   = document.getElementById('setup-error');
+
+  if (!token || !dbId) {
+    err.textContent = 'Preencha o token e o Database ID.';
+    err.style.display = 'block'; return;
+  }
+
+  cfg.token        = token;
+  cfg.dbId         = dbId;
+  cfg.imgProp      = document.getElementById('img-prop-input').value.trim()    || 'Image URL';
+  cfg.titleProp    = document.getElementById('title-prop-input').value.trim()   || 'Name';
+  cfg.statusProp   = document.getElementById('status-prop-input').value.trim()  || 'Status';
+  cfg.dateProp     = document.getElementById('date-prop-input').value.trim()    || 'Schedule Date';
+  cfg.orderProp    = document.getElementById('order-prop-input').value.trim()   || 'Grid Order';
+
+  err.style.display = 'none';
+  document.querySelector('.setup-btn').textContent = 'Conectando…';
+
+  try {
+    await fetchPosts(true);
+    saveConfig();
+    showWidget();
+  } catch(e) {
+    err.textContent = 'Erro: ' + e.message;
+    err.style.display = 'block';
+    document.querySelector('.setup-btn').textContent = 'Conectar ao Notion →';
+  }
+}
+
+function disconnect() {
+  localStorage.removeItem('igw_cfg');
+  cfg = { token:'', dbId:'', imgProp:'Image URL', titleProp:'Name', statusProp:'Status', dateProp:'Schedule Date', orderProp:'Grid Order' };
+  allPosts = []; filteredPosts = [];
+  document.getElementById('widget').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'flex';
+}
+
+function showWidget() {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('widget').style.display = 'flex';
+  document.getElementById('db-display').textContent = cfg.dbId.slice(0,8) + '…';
+}
+
+// ── Notion API ────────────────────────────────────
+async function notionRequest(path, method='GET', body=null) {
+  const notionUrl = 'https://api.notion.com/v1' + path;
+  const opts = {
+    method,
+    headers: {
+      'Authorization': 'Bearer ' + cfg.token,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetchWithProxy(notionUrl, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({message:'Erro desconhecido'}));
+    throw new Error(err.message || 'Erro ' + res.status);
+  }
+  return res.json();
+}
+
+async function fetchPosts(silent=false) {
+  if (!silent) showLoading();
+
+  let allResults = [];
+  let cursor = undefined;
+
+  do {
+    const body = { page_size: 100 };
+    if (cursor) body.start_cursor = cursor;
+
+    const data = await notionRequest('/databases/' + cfg.dbId + '/query', 'POST', body);
+    allResults = allResults.concat(data.results);
+    cursor = data.has_more ? data.next_cursor : undefined;
+  } while (cursor);
+
+  allPosts = allResults.map((p, i) => parsePost(p, i));
+  // Sort by Grid Order if available, otherwise by date
+  allPosts.sort((a, b) => {
+    if (a.order != null && b.order != null) return a.order - b.order;
+    if (a.order != null) return -1;
+    if (b.order != null) return 1;
+    if (a.date && b.date) return new Date(a.date) - new Date(b.date);
+    return 0;
+  });
+  return allPosts;
+}
+
+function parsePost(p, fallbackOrder) {
+  const props = p.properties;
+
+  // Title
+  let title = '';
+  const tp = props[cfg.titleProp];
+  if (tp?.title) title = tp.title.map(t=>t.plain_text).join('');
+  else if (tp?.rich_text) title = tp.rich_text.map(t=>t.plain_text).join('');
+
+  // Image URL
+  let imgUrl = '';
+  const ip = props[cfg.imgProp];
+  if (ip?.url) imgUrl = ip.url;
+  else if (ip?.rich_text) imgUrl = ip.rich_text.map(t=>t.plain_text).join('').trim();
+  else if (ip?.files?.[0]) {
+    const f = ip.files[0];
+    imgUrl = f.external?.url || f.file?.url || '';
+  }
+  // Also check page cover
+  if (!imgUrl && p.cover) imgUrl = p.cover.external?.url || p.cover.file?.url || '';
+
+  // Status
+  let status = '';
+  const sp = props[cfg.statusProp];
+  if (sp?.select?.name) status = sp.select.name;
+  else if (sp?.status?.name) status = sp.status.name;
+
+  // Date
+  let date = '';
+  const dp = props[cfg.dateProp];
+  if (dp?.date?.start) date = dp.date.start;
+
+  // Order
+  let order = fallbackOrder;
+  const op = props[cfg.orderProp];
+  if (op?.number != null) order = op.number;
+
+  imgUrl = convertDriveUrl(imgUrl);
+  return { id: p.id, title, imgUrl, status, date, order };
+}
+
+// ── Load & Render ─────────────────────────────────
+async function loadPosts() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
+  try {
+    await fetchPosts(false);
+    applyFilter();
+  } catch(e) {
+    showToast('Erro ao carregar: ' + e.message, true);
+  }
+  btn.classList.remove('spinning');
+}
+
+function showLoading() {
+  document.getElementById('grid').innerHTML = `
+    <div class="grid-loading">
+      <div class="spinner"></div>
+      <div class="loading-text">Carregando posts…</div>
+    </div>`;
+}
+
+function applyFilter() {
+  if (currentFilter === 'all') {
+    filteredPosts = [...allPosts];
+  } else {
+    filteredPosts = allPosts.filter(p =>
+      p.status.toLowerCase() === currentFilter.toLowerCase()
+    );
+  }
+  renderGrid();
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  document.getElementById('grid-info').textContent = filteredPosts.length + ' posts';
+
+  if (filteredPosts.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🖼</div>
+        <div class="empty-title">Nenhum post encontrado</div>
+        <div class="empty-sub">Adicione posts no Notion ou mude o filtro</div>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = '';
+  filteredPosts.forEach((post, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    cell.draggable = true;
+    cell.dataset.index = i;
+
+    const statusClass = getStatusClass(post.status);
+    const dateLabel = post.date ? formatDate(post.date) : '';
+
+    cell.innerHTML = `
+      <div class="pos-badge">${i+1}</div>
+      ${post.imgUrl
+        ? `<img src="${escHtml(post.imgUrl)}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\"no-img\\"><div class=\\"no-img-icon\\">🖼</div><div class=\\"no-img-text\\">${escHtml(post.title||'Sem imagem')}</div></div>'">`
+        : `<div class="no-img"><div class="no-img-icon">🖼</div><div class="no-img-text">${escHtml(post.title||'Sem imagem')}</div></div>`
+      }
+      <div class="overlay">
+        <div class="overlay-title">${escHtml(post.title||'Sem título')}</div>
+        <div class="overlay-meta">
+          ${dateLabel ? `<span class="overlay-date">📅 ${dateLabel}</span>` : ''}
+          ${post.status ? `<span class="overlay-status ${statusClass}">${escHtml(post.status)}</span>` : ''}
+        </div>
+      </div>`;
+
+    // Drag events
+    cell.addEventListener('dragstart', onDragStart);
+    cell.addEventListener('dragover',  onDragOver);
+    cell.addEventListener('dragleave', onDragLeave);
+    cell.addEventListener('drop',      onDrop);
+    cell.addEventListener('dragend',   onDragEnd);
+
+    grid.appendChild(cell);
+  });
+}
+
+// ── Drag & Drop ───────────────────────────────────
+function onDragStart(e) {
+  dragSrcIndex = parseInt(this.dataset.index);
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const idx = parseInt(this.dataset.index);
+  if (idx !== dragSrcIndex) this.classList.add('drag-over');
+}
+
+function onDragLeave() { this.classList.remove('drag-over'); }
+
+async function onDrop(e) {
+  e.preventDefault();
+  const destIndex = parseInt(this.dataset.index);
+  if (destIndex === dragSrcIndex) return;
+
+  // Reorder local array
+  const moved = filteredPosts.splice(dragSrcIndex, 1)[0];
+  filteredPosts.splice(destIndex, 0, moved);
+
+  // Re-assign order values
+  filteredPosts.forEach((p, i) => { p.order = i + 1; });
+
+  renderGrid();
+  await syncOrderToNotion();
+}
+
+function onDragEnd() {
+  document.querySelectorAll('.grid-cell').forEach(c => {
+    c.classList.remove('dragging', 'drag-over');
+  });
+  dragSrcIndex = null;
+}
+
+// ── Sync order to Notion ──────────────────────────
+async function syncOrderToNotion() {
+  const indicator = document.getElementById('save-indicator');
+
+  try {
+    const updates = filteredPosts.map(p =>
+      notionRequest('/pages/' + p.id, 'PATCH', {
+        properties: { [cfg.orderProp]: { number: p.order } }
+      })
+    );
+    await Promise.all(updates);
+
+    indicator.classList.add('show');
+    setTimeout(() => indicator.classList.remove('show'), 2500);
+    showToast('✓ Ordem salva no Notion');
+
+    // Update allPosts order too
+    filteredPosts.forEach(fp => {
+      const ap = allPosts.find(p => p.id === fp.id);
+      if (ap) ap.order = fp.order;
+    });
+  } catch(e) {
+    showToast('Erro ao salvar: ' + e.message, true);
+  }
+}
+
+// ── Filters ───────────────────────────────────────
+function setFilter(filter, el) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  applyFilter();
+}
+
+// ── Columns ───────────────────────────────────────
+function setCols(n, el) {
+  document.getElementById('grid').className = 'cols-' + n;
+  document.querySelectorAll('.col-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Helpers ───────────────────────────────────────
+function getStatusClass(s) {
+  if (!s) return '';
+  const l = s.toLowerCase();
+  if (l.includes('aprovad')) return 'status-approved';
+  if (l.includes('aguardando')) return 'status-draft';
+  if (l.includes('alteração') || l.includes('alteracao')) return 'status-idea';
+  if (l.includes('postado')) return 'status-scheduled';
+  return 'status-draft';
+}
+
+function formatDate(d) {
+  try {
+    return new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
+  } catch(e) { return d; }
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, isErr=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isErr ? '#c0392b' : 'var(--text)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Auto-refresh a cada 5 minutos
+setInterval(() => { if (cfg.token && cfg.dbId) loadPosts(); }, 5 * 60 * 1000);
+</script>
+</body>
+</html>
